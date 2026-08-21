@@ -5,37 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AgendaSmart · Asistente virtual para citas</title>
 
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
 
     <style>
-        /* ===== RESET & BASE ===== */
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --ink: #1C2B24;
-            --ink-soft: #3B4A42;
-            --paper: #F0EDE4;
-            --paper-deep: #E4DFD1;
-            --base: #FAFAF7;
-            --white: #FFFFFF;
-            --indigo: #5B3DF5;
-            --indigo-dark: #4527D1;
-            --indigo-soft: #EDE9FE;
-            --stamp: #C99A2E;
-            --stamp-soft: #FBF1DC;
-            --text-muted: #6B6A62;
-            --border: #E4E1D6;
-            --border-strong: #D3CEBD;
-            --radius: 10px;
+            --bg: #05070D;
+            --bg-panel: #090D18;
+            --surface: rgba(255, 255, 255, 0.035);
+            --surface-hover: rgba(255, 255, 255, 0.06);
+            --border: rgba(255, 255, 255, 0.09);
+            --border-blue: rgba(94, 151, 255, 0.35);
+            --blue: #2E6BFF;
+            --blue-bright: #5B8CFF;
+            --cyan: #00D9FF;
+            --green: #00E38C;
+            --text: #E9EDF7;
+            --text-muted: #8A93AC;
+            --text-faint: #5B637A;
+            --radius: 12px;
             --radius-lg: 20px;
-            --shadow-card: 0 2px 10px rgba(28, 43, 36, 0.07);
-            --shadow-card-hover: 0 14px 34px rgba(28, 43, 36, 0.12);
-            --font-display: 'Space Grotesk', sans-serif;
-            --font-body: 'IBM Plex Sans', -apple-system, sans-serif;
-            --font-mono: 'Space Mono', monospace;
+            --glow-blue: 0 0 0 1px var(--border-blue), 0 8px 30px rgba(46, 107, 255, 0.15);
+            --font-display: 'Sora', sans-serif;
+            --font-body: 'Inter', -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
             --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
@@ -43,243 +39,286 @@
 
         body {
             font-family: var(--font-body);
-            color: var(--ink);
-            background: var(--base);
+            color: var(--text);
+            background: var(--bg);
             line-height: 1.6;
             overflow-x: hidden;
+            background-image:
+                radial-gradient(circle at 1px 1px, rgba(94, 151, 255, 0.10) 1px, transparent 0);
+            background-size: 34px 34px;
         }
 
         a { text-decoration: none; color: inherit; }
         img { max-width: 100%; display: block; }
-
         .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+        /* ===== SCROLL PROGRESS BAR ===== */
+        .scroll-progress {
+            position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+            background: linear-gradient(90deg, var(--blue), var(--cyan));
+            z-index: 3000; transition: width 0.1s linear;
+            box-shadow: 0 0 8px rgba(0, 217, 255, 0.6);
+        }
 
         /* ===== BUTTONS ===== */
         .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 13px 26px;
-            font-family: var(--font-body);
-            font-weight: 600;
-            font-size: 0.95rem;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: var(--transition);
+            display: inline-flex; align-items: center; gap: 8px; padding: 13px 26px;
+            font-family: var(--font-body); font-weight: 600; font-size: 0.95rem;
+            border: none; border-radius: 9px; cursor: pointer; transition: var(--transition);
         }
-        .btn-primary { background: var(--indigo); color: var(--white); }
-        .btn-primary:hover { background: var(--indigo-dark); transform: translateY(-2px); box-shadow: var(--shadow-card-hover); }
-        .btn-outline { background: transparent; color: var(--ink); border: 1.5px solid var(--border-strong); }
-        .btn-outline:hover { background: var(--paper); border-color: var(--ink); }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--blue), var(--cyan)); color: #05070D;
+            box-shadow: 0 4px 20px rgba(46, 107, 255, 0.35);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0, 217, 255, 0.45); }
+        .btn-outline { background: transparent; color: var(--text); border: 1.5px solid var(--border); }
+        .btn-outline:hover { border-color: var(--border-blue); background: var(--surface); }
         .btn-block { width: 100%; justify-content: center; }
 
-        /* ===== HEADER / NAV ===== */
+        /* ===== HEADER ===== */
         .header {
             position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-            background: rgba(250, 250, 247, 0.88);
-            backdrop-filter: blur(14px);
-            border-bottom: 1px solid var(--border);
-            transition: var(--transition);
+            background: rgba(5, 7, 13, 0.75); backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border); transition: var(--transition);
         }
         .header .container { display: flex; align-items: center; justify-content: space-between; height: 72px; }
-
         .logo { display: flex; align-items: center; gap: 10px; }
-        .logo img { width: 40px; height: 40px; object-fit: contain; border-radius: 50%; }
-        .logo span { font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; color: var(--ink); }
+        .logo img { width: 38px; height: 38px; object-fit: contain; border-radius: 50%; box-shadow: var(--glow-blue); }
+        .logo span { font-family: var(--font-display); font-weight: 700; font-size: 1.08rem; color: var(--text); }
 
         .nav { display: flex; align-items: center; gap: 30px; }
-        .nav a { color: var(--text-muted); font-weight: 500; font-size: 0.92rem; transition: var(--transition); position: relative; }
+        .nav a { color: var(--text-muted); font-weight: 500; font-size: 0.9rem; transition: var(--transition); position: relative; }
         .nav a::after {
             content: ''; position: absolute; bottom: -6px; left: 0; width: 0; height: 2px;
-            background: var(--indigo); transition: var(--transition);
+            background: linear-gradient(90deg, var(--blue), var(--cyan)); transition: var(--transition);
         }
-        .nav a:hover, .nav a.active { color: var(--ink); }
+        .nav a:hover, .nav a.active { color: var(--text); }
         .nav a:hover::after, .nav a.active::after { width: 100%; }
         .nav .btn-nav {
-            padding: 9px 20px; font-size: 0.85rem; background: var(--indigo); color: var(--white);
-            border-radius: 8px; font-weight: 600; border: none; cursor: pointer; transition: var(--transition);
+            padding: 9px 20px; font-size: 0.82rem; background: linear-gradient(135deg, var(--blue), var(--cyan));
+            color: #05070D; border-radius: 8px; font-weight: 700; border: none; cursor: pointer; transition: var(--transition);
         }
         .nav .btn-nav::after { display: none; }
-        .nav .btn-nav:hover { background: var(--indigo-dark); transform: translateY(-2px); }
+        .nav .btn-nav:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 217, 255, 0.35); }
 
-        .menu-toggle {
-            display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 4px;
-        }
-        .menu-toggle span { display: block; width: 24px; height: 2px; background: var(--ink); border-radius: 4px; transition: var(--transition); }
+        .menu-toggle { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; }
+        .menu-toggle span { display: block; width: 24px; height: 2px; background: var(--text); border-radius: 4px; transition: var(--transition); }
         .menu-toggle.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
         .menu-toggle.active span:nth-child(2) { opacity: 0; }
         .menu-toggle.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
 
         /* ===== HERO ===== */
-        .hero { padding: 156px 0 110px; background: var(--base); position: relative; overflow: hidden; }
-        .hero-grid { display: grid; grid-template-columns: 1.05fr 1fr; gap: 60px; align-items: center; position: relative; z-index: 2; }
+        .hero { padding: 156px 0 110px; position: relative; overflow: hidden; }
+        .hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; position: relative; z-index: 2; }
 
-        .eyebrow { display: flex; align-items: center; gap: 8px; margin-bottom: 18px; }
-        .eyebrow .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--indigo); display: inline-block; }
-        .eyebrow span { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--indigo); }
-
-        .hero-content h1 {
-            font-family: var(--font-display); font-size: 3rem; font-weight: 700; color: var(--ink);
-            line-height: 1.14; letter-spacing: -0.5px; margin-bottom: 20px;
+        .status-pill {
+            display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px;
+            background: var(--surface); border: 1px solid var(--border); border-radius: 999px; margin-bottom: 20px;
         }
-        .hero-content h1 span { color: var(--indigo); }
-        .hero-content p { font-size: 1.05rem; color: var(--text-muted); max-width: 460px; margin-bottom: 32px; line-height: 1.75; }
+        .status-pill .pulse-dot {
+            width: 7px; height: 7px; border-radius: 50%; background: var(--green); position: relative;
+        }
+        .status-pill .pulse-dot::after {
+            content: ''; position: absolute; inset: -4px; border-radius: 50%; border: 1px solid var(--green);
+            animation: pulseRing 2s infinite;
+        }
+        @keyframes pulseRing { 0% { transform: scale(0.6); opacity: 1; } 100% { transform: scale(1.8); opacity: 0; } }
+        .status-pill span:last-child { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.04em; color: var(--text-muted); text-transform: uppercase; }
+
+        .hero-content h1 { font-family: var(--font-display); font-size: 3rem; font-weight: 800; line-height: 1.12; letter-spacing: -0.5px; margin-bottom: 20px; }
+        .hero-content h1 .grad { background: linear-gradient(90deg, var(--blue-bright), var(--cyan)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .hero-content p { font-size: 1.03rem; color: var(--text-muted); max-width: 460px; margin-bottom: 32px; }
 
         .hero-actions { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 8px; }
 
         .hero-stats { display: flex; gap: 40px; margin-top: 40px; padding-top: 28px; border-top: 1px solid var(--border); }
-        .hero-stats .stat { color: var(--text-muted); font-size: 0.85rem; }
-        .hero-stats .stat strong { display: block; font-family: var(--font-display); font-size: 1.7rem; font-weight: 700; color: var(--ink); margin-bottom: 2px; }
+        .hero-stats .stat { color: var(--text-muted); font-size: 0.84rem; }
+        .hero-stats .stat strong { display: block; font-family: var(--font-mono); font-size: 1.6rem; font-weight: 700; color: var(--text); margin-bottom: 2px; }
 
-        /* Hero visual: fanned appointment cards */
-        .hero-visual { position: relative; height: 380px; }
-        .float-circle { position: absolute; border-radius: 50%; pointer-events: none; }
-        .float-circle.c1 { width: 220px; height: 220px; background: var(--indigo-soft); top: 0; right: 20px; opacity: 0.7; }
-        .float-circle.c2 { width: 140px; height: 140px; background: var(--stamp-soft); bottom: 10px; left: 0; opacity: 0.8; }
+        /* Hero visual: terminal / system console */
+        .hero-visual { position: relative; }
+        .terminal {
+            background: var(--bg-panel); border: 1px solid var(--border-blue); border-radius: var(--radius-lg);
+            box-shadow: var(--glow-blue); overflow: hidden;
+        }
+        .terminal-bar { display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; border-bottom: 1px solid var(--border); }
+        .terminal-bar .dots { display: flex; gap: 6px; }
+        .terminal-bar .dots span { width: 9px; height: 9px; border-radius: 50%; background: rgba(255, 255, 255, 0.15); }
+        .terminal-bar .title { font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-faint); letter-spacing: 0.03em; }
+        .terminal-body { padding: 22px 20px; font-family: var(--font-mono); font-size: 0.85rem; line-height: 2; min-height: 210px; }
+        .terminal-line { opacity: 0; }
+        .terminal-line .who { color: var(--text-faint); }
+        .terminal-line.client .msg { color: var(--text); }
+        .terminal-line.bot .msg { color: var(--cyan); }
+        .terminal-line.confirm .msg { color: var(--green); font-weight: 600; }
+        .cursor { display: inline-block; width: 7px; height: 15px; background: var(--cyan); vertical-align: middle; animation: blink 1s step-end infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
 
-        .agenda-card {
-            position: absolute; width: 230px; background: var(--white); border: 1px solid var(--border);
-            border-radius: 14px; padding: 20px 22px; box-shadow: var(--shadow-card);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        .node-chip {
+            position: absolute; display: flex; align-items: center; gap: 8px; background: var(--bg-panel);
+            border: 1px solid var(--border-blue); border-radius: 999px; padding: 7px 14px;
+            box-shadow: var(--glow-blue); font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-muted);
         }
-        .agenda-card:hover { transform: translateY(-4px) rotate(0deg) !important; box-shadow: var(--shadow-card-hover); z-index: 5 !important; }
-        .agenda-card .biz { font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); }
-        .agenda-card .slot { font-family: var(--font-display); font-weight: 700; font-size: 1.3rem; color: var(--ink); margin: 6px 0 10px; }
-        .agenda-card .stamp {
-            display: inline-block; font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.04em;
-            color: var(--stamp); border: 1px solid var(--stamp); padding: 3px 10px; border-radius: 4px; transform: rotate(-4deg);
-        }
-        .agenda-card.c1 { top: 10px; left: 10px; transform: rotate(-7deg); z-index: 1; }
-        .agenda-card.c2 { top: 90px; left: 90px; transform: rotate(4deg); z-index: 3; box-shadow: var(--shadow-card-hover); }
-        .agenda-card.c3 { top: 190px; left: 30px; transform: rotate(-2deg); z-index: 2; }
+        .node-chip .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+        .node-chip.n1 { top: -18px; right: 20px; }
+        .node-chip.n2 { bottom: -18px; left: 30px; }
 
         /* ===== SECTION COMMON ===== */
-        section { padding: 110px 0; }
+        section { padding: 110px 0; position: relative; }
         .section-label {
-            font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase;
-            color: var(--indigo); display: inline-block; margin-bottom: 14px;
+            font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase;
+            color: var(--cyan); display: inline-block; margin-bottom: 14px;
         }
-        .section-title { font-family: var(--font-display); font-size: 2.1rem; font-weight: 700; color: var(--ink); line-height: 1.25; }
-        .section-title span { color: var(--indigo); }
-        .section-subtitle { font-size: 1.02rem; color: var(--text-muted); max-width: 560px; margin: 16px auto 0; line-height: 1.7; }
+        .section-label::before { content: '// '; color: var(--text-faint); }
+        .section-title { font-family: var(--font-display); font-size: 2.1rem; font-weight: 700; line-height: 1.25; }
+        .section-title .grad { background: linear-gradient(90deg, var(--blue-bright), var(--cyan)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .section-subtitle { font-size: 1rem; color: var(--text-muted); max-width: 560px; margin: 16px auto 0; }
         .text-center { text-align: center; margin-bottom: 60px; }
 
-        /* ===== QUIENES SOMOS ===== */
-        .about { background: var(--paper); border-top: 1px solid var(--border); }
+        .about { background: var(--bg-panel); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
         .about-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 60px; align-items: start; }
-        .about-text p { font-size: 0.98rem; color: var(--ink-soft); line-height: 1.8; margin-bottom: 18px; }
+        .about-text p { font-size: 0.97rem; color: var(--text-muted); line-height: 1.8; margin-bottom: 18px; }
+        .about-text strong { color: var(--text); }
 
         .about-values { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 30px; }
-        .value-item {
-            background: var(--white); border: 1px solid var(--border); border-radius: var(--radius);
-            padding: 18px 18px 18px 22px; position: relative; overflow: hidden;
-        }
-        .value-item::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--indigo); }
-        .value-item h4 { font-family: var(--font-display); font-size: 0.95rem; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
-        .value-item p { font-size: 0.82rem; color: var(--text-muted); line-height: 1.55; }
+        .value-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 18px 18px 22px; position: relative; overflow: hidden; transition: var(--transition); }
+        .value-item::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, var(--blue), var(--cyan)); }
+        .value-item:hover { border-color: var(--border-blue); background: var(--surface-hover); }
+        .value-item h4 { font-family: var(--font-display); font-size: 0.94rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+        .value-item p { font-size: 0.81rem; color: var(--text-muted); line-height: 1.55; }
 
         .about-visual { display: flex; flex-direction: column; gap: 24px; }
-        .about-card {
-            background: var(--white); border: 1px solid var(--border-strong); border-radius: var(--radius-lg);
-            padding: 30px 26px 26px; position: relative; margin-top: 16px;
-        }
+        .about-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 30px 26px 26px; position: relative; margin-top: 16px; transition: var(--transition); }
+        .about-card:hover { border-color: var(--border-blue); box-shadow: var(--glow-blue); }
         .about-card .label {
-            position: absolute; top: -14px; left: 24px; color: var(--white);
-            font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em;
-            padding: 6px 14px; border-radius: 6px; box-shadow: var(--shadow-card);
+            position: absolute; top: -14px; left: 24px; color: #05070D; font-family: var(--font-mono); font-size: 0.68rem;
+            text-transform: uppercase; letter-spacing: 0.06em; padding: 6px 14px; border-radius: 6px; font-weight: 700;
+            background: linear-gradient(135deg, var(--blue), var(--cyan));
         }
-        .about-card.tab-indigo .label { background: var(--indigo); }
-        .about-card.tab-stamp .label { background: var(--stamp); }
-        .about-card h3 { font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; color: var(--ink); margin: 8px 0 12px; }
-        .about-card p { font-size: 0.92rem; color: var(--text-muted); line-height: 1.7; }
+        .about-card h3 { font-family: var(--font-display); font-size: 1.18rem; font-weight: 700; margin: 8px 0 12px; }
+        .about-card p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.7; }
 
-        /* ===== SERVICIOS ===== */
-        .services { background: var(--base); border-top: 1px solid var(--border); }
         .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; }
-        .service-card {
-            background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg);
-            padding: 30px 26px; transition: var(--transition); opacity: 0; transform: translateY(24px);
-        }
-        .service-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-card-hover); border-color: var(--border-strong); }
-        .service-icon {
-            width: 48px; height: 48px; border-radius: 10px; background: var(--paper);
-            display: flex; align-items: center; justify-content: center; color: var(--indigo); margin-bottom: 18px;
-        }
-        .service-card h3 { font-family: var(--font-display); font-size: 1.08rem; font-weight: 700; color: var(--ink); margin-bottom: 10px; }
-        .service-card p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.65; }
+        .service-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 30px 26px; transition: var(--transition); opacity: 0; transform: translateY(24px); }
+        .service-card:hover { transform: translateY(-4px); border-color: var(--border-blue); box-shadow: var(--glow-blue); }
+        .service-icon { width: 46px; height: 46px; border-radius: 10px; background: rgba(46, 107, 255, 0.12); border: 1px solid var(--border-blue); display: flex; align-items: center; justify-content: center; color: var(--cyan); margin-bottom: 18px; }
+        .service-card h3 { font-family: var(--font-display); font-size: 1.05rem; font-weight: 700; margin-bottom: 10px; }
+        .service-card p { font-size: 0.88rem; color: var(--text-muted); line-height: 1.65; }
 
-        /* ===== PORTAFOLIO ===== */
-        .portfolio { background: var(--paper); border-top: 1px solid var(--border); }
-        .portfolio-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 26px; }
-        .portfolio-card {
-            background: var(--white); border: 1px solid var(--border-strong); border-radius: var(--radius-lg);
-            overflow: hidden; box-shadow: var(--shadow-card); transition: var(--transition); position: relative;
-        }
-        .portfolio-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-card-hover); }
-        .portfolio-card::after {
-            content: ''; position: absolute; top: 0; right: 0; width: 28px; height: 28px;
-            background: linear-gradient(135deg, transparent 50%, var(--paper-deep) 50%);
-        }
-        .portfolio-top {
-            display: flex; align-items: center; justify-content: space-between; padding: 16px 22px;
-            border-bottom: 1px dashed var(--border-strong); background: var(--paper);
-        }
-        .portfolio-top .tag {
-            font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.05em; text-transform: uppercase;
-            color: var(--ink); background: var(--white); border: 1px solid var(--border-strong); padding: 4px 10px; border-radius: 5px;
-        }
-        .portfolio-body { padding: 22px; }
-        .portfolio-body h3 { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: var(--ink); margin-bottom: 8px; }
-        .portfolio-body p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.65; }
+        /* ===== DEMO CHATBOT ===== */
+        .demo-disclaimer { text-align: center; font-family: var(--font-mono); font-size: 0.76rem; color: var(--text-faint); max-width: 480px; margin: 22px auto 0; }
 
-        /* ===== CONTACTO ===== */
-        .contact { background: var(--base); border-top: 1px solid var(--border); }
-        .contact-wrapper { display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 50px; align-items: start; }
+        .chat-widget {
+            max-width: 560px; margin: 0 auto; background: var(--bg-panel); border: 1px solid var(--border-blue);
+            border-radius: var(--radius-lg); box-shadow: var(--glow-blue); overflow: hidden;
+            display: flex; flex-direction: column; height: 520px;
+        }
+        .chat-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+        .chat-header-left { display: flex; align-items: center; gap: 12px; }
+        .chat-header .dots { display: flex; gap: 6px; }
+        .chat-header .dots span { width: 9px; height: 9px; border-radius: 50%; background: rgba(255, 255, 255, 0.15); }
+        .chat-header .title { font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-faint); letter-spacing: 0.03em; }
+        .chat-reset { background: none; border: 1px solid var(--border); color: var(--text-muted); font-family: var(--font-mono); font-size: 0.7rem; padding: 5px 10px; border-radius: 999px; cursor: pointer; transition: var(--transition); }
+        .chat-reset:hover { border-color: var(--border-blue); color: var(--cyan); }
 
-        .contact-info h3 { font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; color: var(--ink); margin-bottom: 12px; }
-        .contact-info > p { font-size: 0.98rem; color: var(--text-muted); margin-bottom: 30px; }
-        .contact-details { display: flex; flex-direction: column; gap: 20px; }
-        .contact-detail { display: flex; gap: 14px; align-items: flex-start; }
-        .contact-detail .icon {
-            width: 40px; height: 40px; border-radius: 10px; background: var(--paper); color: var(--indigo);
-            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-        }
-        .contact-detail .text { font-size: 0.92rem; color: var(--ink); padding-top: 6px; }
-        .contact-detail .text small { display: block; margin-top: 3px; color: var(--text-muted); font-size: 0.78rem; }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+        .chat-messages::-webkit-scrollbar { width: 6px; }
+        .chat-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
-        .contact-form {
-            background: var(--white); border: 1px solid var(--border-strong); border-radius: var(--radius-lg);
-            padding: 34px 32px; box-shadow: var(--shadow-card);
+        .msg-bubble { max-width: 78%; padding: 10px 14px; border-radius: 14px; font-size: 0.87rem; line-height: 1.5; animation: msgIn 0.25s ease; }
+        @keyframes msgIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        .msg-bubble.bot { align-self: flex-start; background: var(--surface); border: 1px solid var(--border); color: var(--text); border-bottom-left-radius: 4px; }
+        .msg-bubble.bot.confirm { border-color: var(--green); color: var(--green); font-weight: 600; }
+        .msg-bubble.user { align-self: flex-end; background: linear-gradient(135deg, var(--blue), var(--cyan)); color: #05070D; font-weight: 500; border-bottom-right-radius: 4px; }
+
+        .typing-indicator { align-self: flex-start; display: flex; gap: 4px; padding: 12px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; border-bottom-left-radius: 4px; }
+        .typing-indicator span { width: 6px; height: 6px; border-radius: 50%; background: var(--text-faint); animation: typingBounce 1.2s infinite; }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typingBounce { 0%, 60%, 100% { transform: translateY(0); opacity: 0.4; } 30% { transform: translateY(-4px); opacity: 1; } }
+
+        .chat-quick-replies { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 18px 14px; flex-shrink: 0; }
+        .quick-reply-btn {
+            background: rgba(0, 217, 255, 0.07); border: 1px solid var(--border-blue); color: var(--cyan);
+            padding: 7px 14px; border-radius: 999px; font-family: var(--font-mono); font-size: 0.74rem;
+            cursor: pointer; transition: var(--transition);
         }
-        .contact-form h4 {
-            font-family: var(--font-mono); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;
-            color: var(--indigo); margin-bottom: 22px;
+        .quick-reply-btn:hover { background: rgba(0, 217, 255, 0.15); transform: translateY(-1px); }
+
+        .chat-input-row { display: flex; gap: 10px; padding: 14px 16px; border-top: 1px solid var(--border); flex-shrink: 0; }
+        .chat-input-row input {
+            flex: 1; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); border-radius: 999px;
+            padding: 11px 16px; color: var(--text); font-family: var(--font-body); font-size: 0.87rem; transition: var(--transition);
         }
-        .form-group { margin-bottom: 18px; }
-        .form-group label { display: block; font-size: 0.82rem; font-weight: 600; color: var(--ink-soft); margin-bottom: 7px; }
-        .form-group input, .form-group textarea {
-            width: 100%; padding: 12px 14px; border: 1px solid var(--border-strong); border-radius: 8px;
-            font-family: var(--font-body); font-size: 0.92rem; color: var(--ink); background: var(--base);
+        .chat-input-row input::placeholder { color: var(--text-faint); }
+        .chat-input-row input:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(46, 107, 255, 0.18); }
+        .chat-input-row button {
+            width: 40px; height: 40px; border-radius: 50%; border: none; flex-shrink: 0; cursor: pointer;
+            background: linear-gradient(135deg, var(--blue), var(--cyan)); color: #05070D; display: flex; align-items: center; justify-content: center;
             transition: var(--transition);
         }
-        .form-group input:focus, .form-group textarea:focus {
-            outline: none; border-color: var(--indigo); box-shadow: 0 0 0 3px var(--indigo-soft); background: var(--white);
+        .chat-input-row button:hover { transform: scale(1.06); }
+
+        @media (max-width: 640px) {
+            .chat-widget { height: 480px; }
+            .msg-bubble { max-width: 88%; }
         }
+
+        .portfolio { background: var(--bg-panel); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+        .portfolio-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 26px; }
+        .portfolio-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; transition: var(--transition); }
+        .portfolio-card:hover { transform: translateY(-4px); border-color: var(--border-blue); box-shadow: var(--glow-blue); }
+        .portfolio-top { display: flex; align-items: center; justify-content: space-between; padding: 16px 22px; border-bottom: 1px solid var(--border); }
+        .portfolio-top .tag { font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--cyan); background: rgba(0, 217, 255, 0.08); border: 1px solid var(--border-blue); padding: 4px 10px; border-radius: 5px; }
+        .portfolio-top .live { display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 0.66rem; color: var(--text-faint); }
+        .portfolio-top .live .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--green); }
+        .portfolio-body { padding: 22px; }
+        .portfolio-body h3 { font-family: var(--font-display); font-size: 1.08rem; font-weight: 700; margin-bottom: 8px; }
+        .portfolio-body p { font-size: 0.88rem; color: var(--text-muted); line-height: 1.65; }
+
+        .contact-wrapper { display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 50px; align-items: start; }
+        .contact-info h3 { font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; margin-bottom: 12px; }
+        .contact-info > p { font-size: 0.97rem; color: var(--text-muted); margin-bottom: 30px; }
+        .contact-details { display: flex; flex-direction: column; gap: 20px; }
+        .contact-detail { display: flex; gap: 14px; align-items: flex-start; }
+        .contact-detail .icon { width: 40px; height: 40px; border-radius: 10px; background: rgba(46, 107, 255, 0.12); border: 1px solid var(--border-blue); color: var(--cyan); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .contact-detail .text { font-size: 0.91rem; color: var(--text); padding-top: 6px; }
+        .contact-detail .text small { display: block; margin-top: 3px; color: var(--text-faint); font-size: 0.77rem; }
+
+        .contact-form { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 34px 32px; }
+        .contact-form h4 { font-family: var(--font-mono); font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--cyan); margin-bottom: 22px; }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; font-size: 0.81rem; font-weight: 600; color: var(--text-muted); margin-bottom: 7px; }
+        .form-group input, .form-group textarea {
+            width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: 8px;
+            font-family: var(--font-body); font-size: 0.9rem; color: var(--text); background: rgba(255, 255, 255, 0.02); transition: var(--transition);
+        }
+        .form-group input::placeholder, .form-group textarea::placeholder { color: var(--text-faint); }
+        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(46, 107, 255, 0.18); }
         .form-group textarea { min-height: 110px; resize: vertical; }
 
-        /* ===== FOOTER ===== */
-        .footer { background: var(--ink); padding: 56px 0 30px; }
+        .footer { background: var(--bg); padding: 56px 0 30px; border-top: 1px solid var(--border); }
         .footer .container { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px; }
-        .footer .logo span { color: var(--white); }
         .footer-socials { display: flex; gap: 22px; }
-        .footer-socials a { color: rgba(255, 255, 255, 0.65); font-size: 0.85rem; transition: var(--transition); }
-        .footer-socials a:hover { color: var(--white); }
-        .footer-copy { font-size: 0.78rem; color: rgba(255, 255, 255, 0.45); width: 100%; text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.08); }
+        .footer-socials a { color: var(--text-faint); font-size: 0.85rem; transition: var(--transition); }
+        .footer-socials a:hover { color: var(--cyan); }
+        .footer-copy { font-family: var(--font-mono); font-size: 0.74rem; color: var(--text-faint); width: 100%; text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); }
+
+        /* ===== FLOATING WHATSAPP BUTTON ===== */
+        .wa-float {
+            position: fixed; bottom: 26px; right: 26px; width: 58px; height: 58px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--blue), var(--cyan)); display: flex; align-items: center; justify-content: center;
+            cursor: pointer; z-index: 900; box-shadow: 0 6px 24px rgba(0, 217, 255, 0.35); border: none;
+        }
+        .wa-float::before {
+            content: ''; position: absolute; inset: 0; border-radius: 50%; border: 2px solid var(--cyan);
+            animation: pulseRing 2.2s infinite;
+        }
+        .wa-float svg { color: #05070D; position: relative; z-index: 1; }
 
         /* ===== RESPONSIVE ===== */
         @media (max-width: 900px) {
-            .nav { position: fixed; top: 72px; left: 0; right: 0; background: var(--base); flex-direction: column;
+            .nav { position: fixed; top: 72px; left: 0; right: 0; background: var(--bg); flex-direction: column;
                 align-items: flex-start; gap: 0; padding: 8px 24px 20px; border-bottom: 1px solid var(--border);
                 transform: translateY(-150%); opacity: 0; transition: var(--transition); }
             .nav.open { transform: translateY(0); opacity: 1; }
@@ -289,18 +328,20 @@
 
             .hero { padding: 130px 0 70px; }
             .hero-grid { grid-template-columns: 1fr; gap: 70px; }
-            .hero-content h1 { font-size: 2.2rem; }
-            .hero-visual { height: 300px; margin: 0 auto; max-width: 320px; }
-            .agenda-card { width: 200px; }
+            .hero-content h1 { font-size: 2.1rem; }
+            .node-chip { display: none; }
 
             .about-grid, .contact-wrapper { grid-template-columns: 1fr; }
             .about-values { grid-template-columns: 1fr; }
             section { padding: 70px 0; }
-            .section-title { font-size: 1.7rem; }
+            .section-title { font-size: 1.6rem; }
+            .wa-float { width: 52px; height: 52px; bottom: 18px; right: 18px; }
         }
     </style>
 </head>
 <body>
+
+    <div class="scroll-progress" id="scrollProgress"></div>
 
     <!-- ===== HEADER ===== -->
     <header class="header" id="header">
@@ -318,6 +359,7 @@
                 <a href="#inicio" class="active">Inicio</a>
                 <a href="#quienes-somos">Quiénes somos</a>
                 <a href="#servicios">Servicios</a>
+                <a href="#demo">Demo</a>
                 <a href="#portafolio">Portafolio</a>
                 <a href="#contacto">Contacto</a>
                 <a href="#contacto" class="btn-nav">Prueba gratis</a>
@@ -325,12 +367,12 @@
         </div>
     </header>
 
-    <!-- ===== HERO / INICIO ===== -->
+    <!-- ===== HERO ===== -->
     <section class="hero" id="inicio">
         <div class="container hero-grid">
             <div class="hero-content">
-                <div class="eyebrow"><span class="dot"></span><span>Agenda inteligente</span></div>
-                <h1>Tu asistente virtual<br /><span>24/7 para citas</span></h1>
+                <div class="status-pill"><span class="pulse-dot"></span><span>Sistema en línea</span></div>
+                <h1>Tu asistente virtual<br /><span class="grad">24/7 para citas</span></h1>
                 <p>
                     Tú te enfocas en tu servicio, nosotros en tu agenda.
                     AgendaSmart automatiza la gestión de citas para que nunca
@@ -341,30 +383,27 @@
                     <a href="#quienes-somos" class="btn btn-outline">Conocer más</a>
                 </div>
                 <div class="hero-stats">
-                    <div class="stat"><strong>24/7</strong> Atención continua</div>
-                    <div class="stat"><strong>−80%</strong> Tiempo administrativo</div>
-                    <div class="stat"><strong>100+</strong> Usuarios activos</div>
+                    <div class="stat"><strong>24/7</strong>Atención continua</div>
+                    <div class="stat"><strong data-target="80" data-prefix="−" data-suffix="%">−0%</strong>Tiempo administrativo</div>
+                    <div class="stat"><strong data-target="100" data-suffix="+">0+</strong>Usuarios activos</div>
                 </div>
             </div>
 
             <div class="hero-visual">
-                <div class="float-circle c1"></div>
-                <div class="float-circle c2"></div>
+                <div class="node-chip n1"><span class="dot"></span>Barbería Centro</div>
+                <div class="node-chip n2"><span class="dot"></span>Psic. Laura Ruiz</div>
 
-                <div class="agenda-card c1">
-                    <div class="biz">Barbería Centro</div>
-                    <div class="slot">Jue 10:30</div>
-                    <span class="stamp">Confirmada</span>
-                </div>
-                <div class="agenda-card c2">
-                    <div class="biz">Psic. Laura Ruiz</div>
-                    <div class="slot">Vie 17:00</div>
-                    <span class="stamp">Confirmada</span>
-                </div>
-                <div class="agenda-card c3">
-                    <div class="biz">Clínica Veterinaria</div>
-                    <div class="slot">Lun 09:15</div>
-                    <span class="stamp">Confirmada</span>
+                <div class="terminal">
+                    <div class="terminal-bar">
+                        <div class="dots"><span></span><span></span><span></span></div>
+                        <div class="title">agendasmart · sesión activa</div>
+                    </div>
+                    <div class="terminal-body" id="terminalBody">
+                        <div class="terminal-line client"><span class="who">cliente&gt;</span> <span class="msg"></span></div>
+                        <div class="terminal-line bot"><span class="who">bot&gt;</span> <span class="msg"></span></div>
+                        <div class="terminal-line client"><span class="who">cliente&gt;</span> <span class="msg"></span></div>
+                        <div class="terminal-line confirm"><span class="who">bot&gt;</span> <span class="msg"></span></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -375,7 +414,7 @@
         <div class="container">
             <div class="text-center">
                 <span class="section-label">Sobre nosotros</span>
-                <h2 class="section-title">Transformamos la manera de <span>gestionar citas</span></h2>
+                <h2 class="section-title">Transformamos la manera de <span class="grad">gestionar citas</span></h2>
             </div>
 
             <div class="about-grid">
@@ -412,7 +451,7 @@
                 </div>
 
                 <div class="about-visual">
-                    <div class="about-card tab-indigo">
+                    <div class="about-card">
                         <span class="label">Misión</span>
                         <h3>Facilitar la gestión del tiempo</h3>
                         <p>
@@ -422,7 +461,7 @@
                             independientes.
                         </p>
                     </div>
-                    <div class="about-card tab-stamp">
+                    <div class="about-card">
                         <span class="label">Visión</span>
                         <h3>Líderes en automatización de citas</h3>
                         <p>
@@ -442,7 +481,7 @@
         <div class="container">
             <div class="text-center">
                 <span class="section-label">Servicios</span>
-                <h2 class="section-title">Todo lo que necesitas para <span>automatizar tu agenda</span></h2>
+                <h2 class="section-title">Todo lo que necesitas para <span class="grad">automatizar tu agenda</span></h2>
                 <p class="section-subtitle">
                     Una plataforma completa, diseñada para que te olvides de la
                     logística y te concentres en lo que mejor sabes hacer.
@@ -452,7 +491,7 @@
             <div class="services-grid">
                 <div class="service-card">
                     <div class="service-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                     </div>
                     <h3>Respuesta 24/7 automática</h3>
                     <p>Atiende solicitudes de citas en cualquier momento del día, incluso fuera del horario laboral, sin necesidad de personal adicional.</p>
@@ -460,7 +499,7 @@
 
                 <div class="service-card">
                     <div class="service-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                     </div>
                     <h3>Confirmación y recordatorios</h3>
                     <p>Envía confirmaciones inmediatas y recordatorios previos a la cita para reducir cancelaciones y <em>no-shows</em>.</p>
@@ -468,7 +507,7 @@
 
                 <div class="service-card">
                     <div class="service-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                     </div>
                     <h3>Integración con calendario</h3>
                     <p>Sincronización con tu calendario existente para mostrar disponibilidad en tiempo real y evitar conflictos de agenda.</p>
@@ -476,7 +515,7 @@
 
                 <div class="service-card">
                     <div class="service-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                     </div>
                     <h3>Chat en web y redes sociales</h3>
                     <p>Tus clientes agendan desde WhatsApp, Instagram o tu sitio web con una experiencia sencilla e intuitiva.</p>
@@ -484,7 +523,7 @@
 
                 <div class="service-card">
                     <div class="service-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                     </div>
                     <h3>IA y notas de voz</h3>
                     <p>Procesamiento de lenguaje natural para entender contextos complejos y notas de voz, ampliando las posibilidades de interacción.</p>
@@ -492,7 +531,7 @@
 
                 <div class="service-card">
                     <div class="service-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                     </div>
                     <h3>Seguridad y privacidad</h3>
                     <p>Tus datos y los de tus clientes están protegidos con los más altos estándares de seguridad y cumplimiento normativo.</p>
@@ -501,12 +540,49 @@
         </div>
     </section>
 
+    <!-- ===== DEMO INTERACTIVA ===== -->
+    <section class="demo" id="demo">
+        <div class="container">
+            <div class="text-center">
+                <span class="section-label">Demo interactiva</span>
+                <h2 class="section-title">Pruébalo <span class="grad">tú mismo</span></h2>
+                <p class="section-subtitle">
+                    Escribe como lo haría uno de tus clientes. Por ejemplo, prueba con
+                    <em>"quiero una cita"</em> y sigue la conversación.
+                </p>
+            </div>
+
+            <div class="chat-widget">
+                <div class="chat-header">
+                    <div class="chat-header-left">
+                        <div class="dots"><span></span><span></span><span></span></div>
+                        <div class="title">agendasmart · demo</div>
+                    </div>
+                    <button class="chat-reset" id="chatReset" type="button">↺ reiniciar</button>
+                </div>
+
+                <div class="chat-messages" id="chatMessages"></div>
+
+                <div class="chat-quick-replies" id="quickReplies"></div>
+
+                <form class="chat-input-row" id="chatForm">
+                    <input type="text" id="chatInput" placeholder="Escribe tu mensaje..." autocomplete="off" />
+                    <button type="submit" aria-label="Enviar">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                    </button>
+                </form>
+            </div>
+
+            <p class="demo-disclaimer">Esta es una simulación con fines demostrativos. Para agendar una cita real, el bot te conectará con nuestro WhatsApp.</p>
+        </div>
+    </section>
+
     <!-- ===== PORTAFOLIO ===== -->
     <section class="portfolio" id="portafolio">
         <div class="container">
             <div class="text-center">
                 <span class="section-label">Portafolio</span>
-                <h2 class="section-title">Casos de éxito que <span>hablan por sí mismos</span></h2>
+                <h2 class="section-title">Casos de éxito que <span class="grad">hablan por sí mismos</span></h2>
                 <p class="section-subtitle">
                     Estos son algunos de los profesionales y negocios que ya confían
                     en AgendaSmart para gestionar su agenda diaria.
@@ -515,7 +591,7 @@
 
             <div class="portfolio-grid">
                 <div class="portfolio-card">
-                    <div class="portfolio-top"><span class="tag">Veterinaria</span></div>
+                    <div class="portfolio-top"><span class="tag">Veterinaria</span><span class="live"><span class="dot"></span>activo</span></div>
                     <div class="portfolio-body">
                         <h3>Clínica veterinaria</h3>
                         <p>Clínica con 3 sedes que redujo un 40% el tiempo administrativo y eliminó las cancelaciones de última hora con recordatorios automáticos.</p>
@@ -523,7 +599,7 @@
                 </div>
 
                 <div class="portfolio-card">
-                    <div class="portfolio-top"><span class="tag">Psicología</span></div>
+                    <div class="portfolio-top"><span class="tag">Psicología</span><span class="live"><span class="dot"></span>activo</span></div>
                     <div class="portfolio-body">
                         <h3>Consultorio psicológico</h3>
                         <p>Multiplicó su capacidad de atención al automatizar la agenda y ofrecer disponibilidad 24/7 para sus pacientes.</p>
@@ -531,7 +607,7 @@
                 </div>
 
                 <div class="portfolio-card">
-                    <div class="portfolio-top"><span class="tag">Barbería</span></div>
+                    <div class="portfolio-top"><span class="tag">Barbería</span><span class="live"><span class="dot"></span>activo</span></div>
                     <div class="portfolio-body">
                         <h3>Barbería de alto tráfico</h3>
                         <p>Aumentó sus ingresos en un 35% al optimizar los espacios vacíos y reducir los <em>no-shows</em>.</p>
@@ -546,7 +622,7 @@
         <div class="container">
             <div class="text-center">
                 <span class="section-label">Contacto</span>
-                <h2 class="section-title">¿Listo para automatizar <span>tu agenda?</span></h2>
+                <h2 class="section-title">¿Listo para automatizar <span class="grad">tu agenda?</span></h2>
                 <p class="section-subtitle">
                     Cuéntanos tu negocio y te mostraremos cómo AgendaSmart puede
                     transformar tu día a día.
@@ -583,7 +659,7 @@
                 </div>
 
                 <div class="contact-form">
-                    <h4>Envíanos un mensaje</h4>
+                    <h4>&gt; Envíanos un mensaje</h4>
                     <form id="contactForm">
                         <div class="form-group">
                             <label for="nombre">Nombre completo</label>
@@ -626,9 +702,14 @@
                 <a href="#" aria-label="YouTube">YouTube</a>
             </div>
 
-            <div class="footer-copy">&copy; 2026 AgendaSmart · Todos los derechos reservados.</div>
+            <div class="footer-copy">© 2026 AgendaSmart · Todos los derechos reservados.</div>
         </div>
     </footer>
+
+    <!-- Botón flotante de WhatsApp -->
+    <button class="wa-float" id="waFloat" aria-label="Contactar por WhatsApp">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M17.6 6.32A8.86 8.86 0 0 0 12.05 4a8.94 8.94 0 0 0-7.74 13.4L3 21l3.72-1.28a8.9 8.9 0 0 0 4.33 1.12h.01a8.94 8.94 0 0 0 8.94-8.9 8.87 8.87 0 0 0-2.4-5.62zM12.06 19.1a7.4 7.4 0 0 1-3.78-1.03l-.27-.16-2.24.77.75-2.2-.18-.28a7.44 7.44 0 1 1 13.8-3.9 7.45 7.45 0 0 1-7.28 6.8zm4.08-5.56c-.22-.11-1.32-.65-1.53-.73-.2-.08-.35-.11-.5.11-.15.22-.58.73-.71.88-.13.15-.26.16-.48.05a6.1 6.1 0 0 1-1.8-1.11 6.75 6.75 0 0 1-1.24-1.55c-.13-.22 0-.34.1-.45.1-.1.22-.26.33-.39.11-.13.15-.22.22-.37.07-.15.04-.28-.02-.39-.06-.11-.5-1.2-.68-1.65-.18-.43-.36-.37-.5-.38h-.43a.83.83 0 0 0-.6.28 2.5 2.5 0 0 0-.78 1.86c0 1.1.8 2.16.91 2.31.11.15 1.57 2.4 3.8 3.36.53.23.94.37 1.27.47.53.17 1.02.14 1.4.09.43-.06 1.32-.54 1.5-1.06.19-.52.19-.96.13-1.06-.06-.1-.2-.15-.42-.26z"/></svg>
+    </button>
 
     <!-- ===== SCRIPTS ===== -->
     <script>
@@ -637,11 +718,13 @@
         // sin "+" y sin guiones. Ejemplo para México: 522384095818
         const NUMERO_WHATSAPP = '522384095818';
 
-        const contactForm = document.getElementById('contactForm');
+        function whatsappUrl(texto) {
+            return `https://wa.me/${NUMERO_WHATSAPP}?text=${encodeURIComponent(texto)}`;
+        }
 
+        const contactForm = document.getElementById('contactForm');
         contactForm.addEventListener('submit', function (e) {
             e.preventDefault();
-
             const nombre = document.getElementById('nombre').value.trim();
             const email = document.getElementById('email').value.trim();
             const negocio = document.getElementById('negocio').value.trim();
@@ -657,10 +740,208 @@
             if (negocio) { texto += `Negocio: ${negocio}\n`; }
             texto += `Mensaje: ${mensaje}`;
 
-            const url = `https://wa.me/${NUMERO_WHATSAPP}?text=${encodeURIComponent(texto)}`;
-            window.open(url, '_blank');
+            window.open(whatsappUrl(texto), '_blank');
             contactForm.reset();
         });
+
+        // Botón flotante de WhatsApp (mensaje rápido predefinido)
+        document.getElementById('waFloat').addEventListener('click', () => {
+            window.open(whatsappUrl('Hola, quiero más información sobre AgendaSmart.'), '_blank');
+        });
+
+        // ===== DEMO DEL CHATBOT SIMULADO =====
+        (function () {
+            const chatMessages = document.getElementById('chatMessages');
+            const quickRepliesEl = document.getElementById('quickReplies');
+            const chatForm = document.getElementById('chatForm');
+            const chatInput = document.getElementById('chatInput');
+            const chatReset = document.getElementById('chatReset');
+
+            if (!chatMessages) return; // la sección demo no está en esta página
+
+            const BUSINESSES = {
+                'barbería': 'Barbería', 'barberia': 'Barbería', 'corte': 'Barbería', 'peluqu': 'Barbería',
+                'psicolog': 'Psicología', 'terapia': 'Psicología',
+                'veterinar': 'Veterinaria', 'mascota': 'Veterinaria', 'perro': 'Veterinaria', 'gato': 'Veterinaria',
+                'legal': 'Asesoría legal', 'abogad': 'Asesoría legal', 'jurídic': 'Asesoría legal'
+            };
+
+            let state = { step: 'start', business: null, slot: null };
+
+            function normalize(str) {
+                return str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+            }
+
+            function getUpcomingSlots() {
+                const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+                const now = new Date();
+                const d1 = new Date(now); d1.setDate(now.getDate() + 1);
+                const d2 = new Date(now); d2.setDate(now.getDate() + 2);
+                return [
+                    `${dayNames[d1.getDay()]} 10:30`,
+                    `${dayNames[d1.getDay()]} 15:00`,
+                    `${dayNames[d2.getDay()]} 09:00`
+                ];
+            }
+
+            function scrollToBottom() { chatMessages.scrollTop = chatMessages.scrollHeight; }
+
+            function addMessage(text, sender, isConfirm) {
+                const bubble = document.createElement('div');
+                bubble.className = 'msg-bubble ' + sender + (isConfirm ? ' confirm' : '');
+                bubble.textContent = text;
+                chatMessages.appendChild(bubble);
+                scrollToBottom();
+            }
+
+            function showTyping() {
+                const el = document.createElement('div');
+                el.className = 'typing-indicator';
+                el.id = 'typingIndicator';
+                el.innerHTML = '<span></span><span></span><span></span>';
+                chatMessages.appendChild(el);
+                scrollToBottom();
+                return el;
+            }
+
+            function setQuickReplies(list) {
+                quickRepliesEl.innerHTML = '';
+                (list || []).forEach(item => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'quick-reply-btn';
+                    btn.textContent = item.label;
+                    btn.addEventListener('click', () => handleQuickReply(item));
+                    quickRepliesEl.appendChild(btn);
+                });
+            }
+
+            function handleQuickReply(item) {
+                addMessage(item.label, 'user');
+                setQuickReplies([]);
+                if (item.action === 'whatsapp') {
+                    const texto = `Hola, quiero agendar una cita.\nNegocio: ${state.business}\nHorario preferido: ${state.slot}`;
+                    window.open(whatsappUrl(texto), '_blank');
+                    respond("Perfecto, te dejo la conversación abierta en WhatsApp para confirmar todo al instante.", []);
+                    return;
+                }
+                respond(processInput(item.value || item.label));
+            }
+
+            function respond(replyOrObj, maybeQuick) {
+                let reply, quick;
+                if (typeof replyOrObj === 'string') { reply = replyOrObj; quick = maybeQuick || []; }
+                else { reply = replyOrObj.reply; quick = replyOrObj.quick || []; }
+
+                const typingEl = showTyping();
+                const delay = 500 + Math.random() * 400;
+                setTimeout(() => {
+                    typingEl.remove();
+                    addMessage(reply, 'bot', replyOrObj && replyOrObj.confirm);
+                    setQuickReplies(quick);
+                }, delay);
+            }
+
+            function processInput(rawText) {
+                const text = normalize(rawText);
+
+                if (state.step === 'start' || state.step === 'done') {
+                    if (/\b(hola|buenas|buen dia|buenas tardes|buenas noches|hey)\b/.test(text) && !/cita|agendar/.test(text)) {
+                        return { reply: '¡Hola! Soy el asistente virtual de AgendaSmart. Puedo ayudarte a agendar una cita. ¿Empezamos?',
+                            quick: [{ label: 'Quiero una cita', value: 'quiero una cita' }, { label: 'Ver servicios', value: 'servicios' }] };
+                    }
+                    if (/cita|agendar|reservar|appointment|espacio|horario/.test(text)) {
+                        state.step = 'choose_business';
+                        return { reply: '¡Claro! ¿Para qué tipo de negocio te gustaría agendar?',
+                            quick: [
+                                { label: 'Barbería', value: 'barberia' },
+                                { label: 'Psicología', value: 'psicologia' },
+                                { label: 'Veterinaria', value: 'veterinaria' },
+                                { label: 'Asesoría legal', value: 'legal' }
+                            ] };
+                    }
+                    if (/servicio|precio|costo|cuanto cuesta|plan/.test(text)) {
+                        return { reply: 'Ofrecemos respuesta 24/7, confirmaciones automáticas, recordatorios e integración con tu calendario. El costo depende del tamaño de tu negocio — con gusto te doy una cotización.',
+                            quick: [{ label: 'Quiero una cita', value: 'quiero una cita' }, { label: 'Hablar con un asesor', action: 'whatsapp' }] };
+                    }
+                    if (/gracias|adios|bye/.test(text)) {
+                        return { reply: 'Con gusto. Aquí estaré si necesitas agendar algo. 👋', quick: [{ label: 'Quiero una cita', value: 'quiero una cita' }] };
+                    }
+                    state.step = 'start';
+                    return { reply: 'Puedo ayudarte a agendar una cita, contarte de nuestros servicios, o ponerte en contacto con un asesor. ¿Qué prefieres?',
+                        quick: [{ label: 'Quiero una cita', value: 'quiero una cita' }, { label: 'Ver servicios', value: 'servicios' }, { label: 'Hablar con un asesor', action: 'whatsapp' }] };
+                }
+
+                if (state.step === 'choose_business') {
+                    const match = Object.keys(BUSINESSES).find(key => text.includes(key));
+                    if (match) {
+                        state.business = BUSINESSES[match];
+                        state.step = 'choose_slot';
+                        const slots = getUpcomingSlots();
+                        return { reply: `Perfecto, estas son las próximas citas disponibles para ${state.business}:`,
+                            quick: slots.map(s => ({ label: s, value: s })) };
+                    }
+                    return { reply: 'No reconocí ese negocio. Elige una opción:',
+                        quick: [
+                            { label: 'Barbería', value: 'barberia' },
+                            { label: 'Psicología', value: 'psicologia' },
+                            { label: 'Veterinaria', value: 'veterinaria' },
+                            { label: 'Asesoría legal', value: 'legal' }
+                        ] };
+                }
+
+                if (state.step === 'choose_slot') {
+                    const slots = getUpcomingSlots();
+                    const match = slots.find(s => text.includes(normalize(s)));
+                    if (match) {
+                        state.slot = match;
+                        state.step = 'confirm';
+                        return { reply: `¿Confirmamos tu cita de ${state.business} para el ${match}?`,
+                            quick: [{ label: 'Sí, confirmar', value: 'si confirmar' }, { label: 'Elegir otro horario', value: 'otro horario' }] };
+                    }
+                    return { reply: 'Elige uno de los horarios disponibles:', quick: slots.map(s => ({ label: s, value: s })) };
+                }
+
+                if (state.step === 'confirm') {
+                    if (/\b(si|dale|confirmar|va|ok)\b/.test(text)) {
+                        state.step = 'done';
+                        return { reply: `✓ Cita confirmada — ${state.business} · ${state.slot}`, confirm: true,
+                            quick: [{ label: 'Continuar por WhatsApp', action: 'whatsapp' }, { label: 'Agendar otra cita', value: 'nueva cita' }] };
+                    }
+                    if (/otro|no/.test(text)) {
+                        state.step = 'choose_slot';
+                        const slots = getUpcomingSlots();
+                        return { reply: 'Sin problema, elige otro horario:', quick: slots.map(s => ({ label: s, value: s })) };
+                    }
+                    return { reply: `¿Confirmamos tu cita de ${state.business} para el ${state.slot}?`,
+                        quick: [{ label: 'Sí, confirmar', value: 'si confirmar' }, { label: 'Elegir otro horario', value: 'otro horario' }] };
+                }
+
+                return { reply: '¿Podrías repetirlo? Puedo ayudarte a agendar una cita.',
+                    quick: [{ label: 'Quiero una cita', value: 'quiero una cita' }] };
+            }
+
+            function resetChat() {
+                state = { step: 'start', business: null, slot: null };
+                chatMessages.innerHTML = '';
+                addMessage('¡Hola! 👋 Soy el asistente virtual de AgendaSmart. Puedo ayudarte a agendar una cita en segundos. Escribe algo como "quiero una cita" para empezar.', 'bot');
+                setQuickReplies([{ label: 'Quiero una cita', value: 'quiero una cita' }, { label: 'Ver servicios', value: 'servicios' }]);
+            }
+
+            chatForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const val = chatInput.value.trim();
+                if (!val) return;
+                addMessage(val, 'user');
+                chatInput.value = '';
+                setQuickReplies([]);
+                respond(processInput(val));
+            });
+
+            chatReset.addEventListener('click', resetChat);
+
+            resetChat();
+        })();
 
         // Mobile menu toggle
         const menuToggle = document.getElementById('menuToggle');
@@ -691,16 +972,29 @@
             });
         });
 
+        // Scroll progress bar
+        const scrollProgress = document.getElementById('scrollProgress');
+        window.addEventListener('scroll', () => {
+            const h = document.documentElement;
+            const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+            scrollProgress.style.width = pct + '%';
+        });
+
+        // Header shadow on scroll
+        const header = document.getElementById('header');
+        window.addEventListener('scroll', () => {
+            header.style.boxShadow = window.scrollY > 20 ? '0 4px 24px rgba(0,0,0,0.35)' : 'none';
+        });
+
         // Reveal on scroll
-        const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -40px 0px' };
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.style.opacity = '1';
-                    entry.target.style.transform = entry.target.dataset.baseTransform || 'translateY(0)';
+                    entry.target.style.transform = 'translateY(0)';
                 }
             });
-        }, observerOptions);
+        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
 
         document.querySelectorAll('.service-card, .portfolio-card, .about-card, .value-item, .contact-detail')
             .forEach(el => {
@@ -710,27 +1004,69 @@
                 observer.observe(el);
             });
 
-        // Hero stats fade-in
-        document.querySelectorAll('.hero-stats .stat').forEach(el => {
-            el.style.opacity = '0';
-            el.style.transform = 'translateY(12px)';
-            el.style.transition = 'opacity 0.7s ease, transform 0.7s ease';
-            setTimeout(() => { el.style.opacity = '1'; el.style.transform = 'translateY(0)'; }, 300);
-        });
+        // Count-up de estadísticas del hero
+        function animateCount(el) {
+            const target = parseFloat(el.dataset.target);
+            const prefix = el.dataset.prefix || '';
+            const suffix = el.dataset.suffix || '';
+            const duration = 1200;
+            const start = performance.now();
+            function tick(now) {
+                const progress = Math.min((now - start) / duration, 1);
+                const value = Math.floor(progress * target);
+                el.textContent = prefix + value + suffix;
+                if (progress < 1) requestAnimationFrame(tick);
+            }
+            requestAnimationFrame(tick);
+        }
+        const statObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.querySelectorAll('strong[data-target]').forEach(animateCount);
+                    statObserver.disconnect();
+                }
+            });
+        }, { threshold: 0.4 });
+        const heroStatsEl = document.querySelector('.hero-stats');
+        if (heroStatsEl) statObserver.observe(heroStatsEl);
 
-        // Agenda card stack fade-in (staggered)
-        document.querySelectorAll('.agenda-card').forEach((card, i) => {
-            const baseTransform = card.style.transform;
-            card.style.opacity = '0';
-            card.style.transition = 'opacity 0.5s ease';
-            setTimeout(() => { card.style.opacity = '1'; }, 250 + i * 250);
-        });
+        // Efecto de escritura en la terminal del hero
+        const terminalLines = [
+            { el: 0, text: '¿Tienen espacio el jueves?' },
+            { el: 1, text: 'Sí, tengo 10:30 y 15:00 libres el jueves.' },
+            { el: 2, text: 'Perfecto, aparta las 10:30' },
+            { el: 3, text: '✓ Cita confirmada — Jue 10:30' }
+        ];
+        const lineEls = document.querySelectorAll('#terminalBody .terminal-line');
 
-        // Header shadow on scroll
-        const header = document.getElementById('header');
-        window.addEventListener('scroll', () => {
-            header.style.boxShadow = window.scrollY > 20 ? '0 4px 20px rgba(28,43,36,0.08)' : 'none';
-        });
+        function typeLine(lineIndex, charIndex) {
+            if (lineIndex >= terminalLines.length) return;
+            const data = terminalLines[lineIndex];
+            const target = lineEls[data.el];
+            const msgSpan = target.querySelector('.msg');
+            target.style.opacity = '1';
+
+            if (charIndex <= data.text.length) {
+                msgSpan.textContent = data.text.slice(0, charIndex);
+                if (charIndex === data.text.length && lineIndex === terminalLines.length - 1) {
+                    msgSpan.insertAdjacentHTML('afterend', '<span class="cursor"></span>');
+                }
+                setTimeout(() => typeLine(lineIndex, charIndex + 1), 24);
+            } else {
+                setTimeout(() => typeLine(lineIndex + 1, 0), 400);
+            }
+        }
+
+        const terminalObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => typeLine(0, 0), 400);
+                    terminalObserver.disconnect();
+                }
+            });
+        }, { threshold: 0.3 });
+        const terminalEl = document.querySelector('.terminal');
+        if (terminalEl) terminalObserver.observe(terminalEl);
     </script>
 
 </body>
